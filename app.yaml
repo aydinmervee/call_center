@@ -1,0 +1,19 @@
+runtime: python
+
+# the PROJECT-DIRECTORY is the one with settings.py and wsgi.py
+entrypoint: gunicorn -b :$PORT mysite.wsgi # specific to a GUnicorn HTTP server deployment
+env: flex # for Google Cloud Flexible App Engine
+
+# any environment variables you want to pass to your application.
+# accessible through os.environ['VARIABLE_NAME']
+env_variables:
+# the secret key used for the Django app (from PROJECT-DIRECTORY/settings.py)
+  SECRET_KEY: 'bstcthrp-0kmd5d__^nhkp*%f23aqd48r3%@bq_9q6%&yub%ld'
+  DEBUG: 'False'
+
+handlers:
+- url: /static
+  static_dir: static
+
+runtime_config:
+  python_version: 3

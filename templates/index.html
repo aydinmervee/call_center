@@ -1,0 +1,169 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Call Center</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+          integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+          integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+          crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+          integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+          crossorigin="anonymous"></script>
+
+  <!-- Datatable -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.bootstrap4.min.css">
+  <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+  <script src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+
+  <!-- Font Awesome -->
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+  <!-- Tempus Dominus Bootstrap 4 -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css"
+        integrity="sha256-XPTBwC3SBoWHSmKasAk01c08M6sIA5gF5+sRxqak2Qs=" crossorigin="anonymous"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js"
+          integrity="sha256-z0oKYg6xiLq3yJGsp/LsY9XykbweQlHl42jHv2XTBz4=" crossorigin="anonymous"></script>
+  <style>
+    td.details-control {
+      background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+      cursor: pointer;
+    }
+
+    tr.details td.details-control {
+      background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-dark">
+  <form method="post">
+    {% csrf_token %}
+    <ul class="navbar-nav">
+      <li class="nav-item" style="padding: 10px">
+        <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+          {{ form.start_date }}
+          <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+          </div>
+        </div>
+      </li>
+      <li class="nav-item" style="padding: 10px">
+        <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+          {{ form.end_date }}
+          <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+          </div>
+        </div>
+      </li>
+      <li class="nav-item" style="padding: 10px">
+        <button type="submit" class="btn btn-primary">Pull</button>
+      </li>
+    </ul>
+  </form>
+</nav>
+<div class="row justify-content-center" style="margin: 25px">
+  <div class="col-12">
+    <table id="data_table" class="table table-striped dt-responsive nowrap" style="width:100%">
+      <thead>
+      <tr>
+        <th></th>
+        <th>Call Date</th>
+        <th>Called Number</th>
+        <th>Caller ID</th>
+        <th>Answered</th>
+        <th>Duration</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for call in call_list %}
+        <tr>
+          <td class="details-control" data-call="{{ call|safe }}"></td>
+          <td>{{ call.calldate }}</td>
+          <td>{{ call.called_num }}</td>
+          <td>{{ call.callerid }}</td>
+          <td>{{ call.answered }}</td>
+          <td>{{ call.duration }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+</body>
+<script>
+    function f(call) {
+        console.log(call);
+    }
+
+    function format(d) {
+        d = d.replace(/'/g, '"');
+        d = d.replace(/False/g, 'false');
+        d = d.replace(/True/g, 'true');
+        d = d.replace(/None/g, 'null');
+        d = JSON.parse(d);
+        d = JSON.stringify(d, undefined, 4);
+        return '<pre>' + d + '</pre>'
+    }
+
+    $(document).ready(function () {
+        let dt = $('#data_table').DataTable({
+            fixedHeader: true,
+        });
+
+        let detailRows = [];
+
+        $('#data_table tbody').on('click', 'tr td.details-control', function () {
+            let tr = $(this).closest('tr');
+            let row = dt.row(tr);
+            let idx = $.inArray(tr.attr('id'), detailRows);
+
+            let call = $(this)[0].getAttribute('data-call');
+
+            if (row.child.isShown()) {
+                tr.removeClass('details');
+                row.child.hide();
+
+                // Remove from the 'open' array
+                detailRows.splice(idx, 1);
+            } else {
+                tr.addClass('details');
+                row.child(format(call)).show();
+
+                // Add to the 'open' array
+                if (idx === -1) {
+                    detailRows.push(tr.attr('id'));
+                }
+            }
+        });
+
+        dt.on('draw', function () {
+            $.each(detailRows, function (i, id) {
+                $('#' + id + ' td.details-control').trigger('click');
+            });
+        });
+    });
+
+    $("#datetimepicker1").datetimepicker({
+        format: 'YYYY-MM-DD HH:mm',
+    });
+
+    $("#datetimepicker2").datetimepicker({
+        format: 'YYYY-MM-DD HH:mm',
+    });
+</script>
+</html>
